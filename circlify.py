@@ -15,6 +15,7 @@ https://github.com/d3/d3-hierarchy/blob/master/src/pack/enclose.js)
 import collections
 import itertools
 import logging
+import random
 import math
 import sys
 
@@ -223,6 +224,8 @@ def get_placement_candidates(radius, c1, c2, margin):
         return candidate1, None
     i2_x, i2_y = i2
     candidate2 = _Circle(i2_x, i2_y, radius)
+    if random.random() > 0.5:
+        return candidate2, candidate1
     return candidate1, candidate2
 
 
@@ -298,7 +301,8 @@ def place_new_A1_0(radius, next_, const_placed_circles, get_hole_degree):
         return placed_circles
     mhd = None
     lead_candidate = None
-    for (c1, c2) in itertools.combinations(placed_circles, 2):
+    while True:
+        c1, c2 = random.sample(placed_circles, 2)
         margin = radius * _eps * 10.0
         # Placed circles other than the 2 circles used to find the
         # candidate placement.
@@ -320,6 +324,8 @@ def place_new_A1_0(radius, next_, const_placed_circles, get_hole_degree):
                 lead_candidate = cand
             if abs(mhd) < margin:
                 break
+        if lead_candidate:
+            break
     if lead_candidate is None:
         # The radius is set to sqrt(value) in pack_A1_0
         raise ValueError("cannot place circle for value " + str(radius ** 2))
@@ -629,4 +635,4 @@ def circlify(
     all_circles = _circlify_level(data, target_enclosure, fields)
     if show_enclosure:
         all_circles.append(target_enclosure)
-    return sorted(all_circles)
+    return sorted(all_circles, reverse=True)
